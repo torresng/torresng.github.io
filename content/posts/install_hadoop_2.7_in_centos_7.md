@@ -1,7 +1,7 @@
 ---
 title: "Install Hadoop 2.7 in CentOS 7"
 date: 2019-06-30T16:10:21+08:00
-draft: true
+draft: false
 ---
 
 ## 配置環境
