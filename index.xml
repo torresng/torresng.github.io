@@ -38,7 +38,7 @@ $ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ softw
       
       <guid>/posts/my-first-post/</guid>
       <description>由於之前的Blog源碼不見了，所以可以有籍口創建新的Blog了。😂
-不管時間再怎不夠用，也要保持技術分享，把自己學到東西分享出來。</description>
+不管再怎麼累，也要保持學習、折騰和技術分享，把自己學到東西分享出來。</description>
     </item>
     
   </channel>
