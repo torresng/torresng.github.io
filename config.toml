@@ -16,7 +16,7 @@ paginate = 5
 [languages]
   [languages.en]
     title = "TorresNG's Blog"
-    subtitle = "A simple theme for Hugo"
+    subtitle = ""
     keywords = ""
     copyright = ""
     menuMore = "Show more"
