@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+      <title>Install Hadoop 2.7 in CentOS 7 :: TorresNG&#39;s Blog — A simple theme for Hugo</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="配置環境 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
+$ sudo dhclient $ sudo yum install -y wget net-tools vim  在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己
+$ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ software/ $ ll total 0 drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software  安裝Java JDK 在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 這里下載"/>
+<meta name="keywords" content=""/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="/posts/install_hadoop_2.7_in_centos_7/" />
+
+
+<link rel="stylesheet" href="/assets/style.css">
+
+
+<link rel="stylesheet" href="/style.css">
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/img/favicon.png">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Install Hadoop 2.7 in CentOS 7"/>
+<meta name="twitter:description" content="配置環境 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
+$ sudo dhclient $ sudo yum install -y wget net-tools vim  在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己
+$ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ software/ $ ll total 0 drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software  安裝Java JDK 在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 這里下載"/>
+
+
+
+<meta property="og:title" content="Install Hadoop 2.7 in CentOS 7" />
+<meta property="og:description" content="配置環境 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
+$ sudo dhclient $ sudo yum install -y wget net-tools vim  在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己
+$ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ software/ $ ll total 0 drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software  安裝Java JDK 在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 這里下載" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/install_hadoop_2.7_in_centos_7/" />
+<meta property="article:published_time" content="2019-06-30T16:10:21&#43;08:00"/>
+<meta property="article:modified_time" content="2019-06-30T16:10:21&#43;08:00"/><meta property="og:site_name" content="TorresNG&#39;s Blog" />
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a href="/" class="logo" style="text-decoration: none;">
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" width="44" height="44" viewBox="0 0 44 44">
+  <polyline fill="none" stroke="#000" stroke-width="2" points="15 8 29.729 22.382 15 35.367"/>
+</svg>
+</span>
+    <span class="logo__text">Learning | Creating | Shareing</span>
+    <span class="logo__cursor"></span>
+  
+</a>
+
+    <span class="header__right">
+      
+        <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/showcase">Showcase</a></li>
+        
+      
+      
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="/showcase">Showcase</a></li>
+      
+    
+  </ul>
+</nav>
+
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </span>
+      
+      <span class="theme-toggle">
+        <svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"/>
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  <div class="post">
+    <h2 class="post-title"><a href="/posts/install_hadoop_2.7_in_centos_7/">Install Hadoop 2.7 in CentOS 7</a></h2>
+    <div class="post-meta">
+      
+        <span class="post-date">
+            2019-06-30
+        </span>
+      
+      
+      
+    </div>
+
+    
+
+    
+
+    <div class="post-content">
+      
+
+<h2 id="配置環境">配置環境</h2>
+
+<p>剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具</p>
+
+<pre><code class="language-shell">$ sudo dhclient
+$ sudo yum install -y wget net-tools vim
+</code></pre>
+
+<p>在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己</p>
+
+<pre><code class="language-sh">$ cd /opt/
+$ sudo mkdir module software
+$ sudo chown torres:torres module/ software/
+$ ll
+total 0
+drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module
+drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software
+</code></pre>
+
+<h2 id="安裝java-jdk">安裝Java JDK</h2>
+
+<p>在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 <a href="https://openjdk.java.net/install/">這里下載</a></p>
+
+<pre><code class="language-shell">$ cd /opt/software
+$ wget https://download.java.net/java/GA/jdk12.0.1/69cfe15208a647278a19ef0990eea691/12/GPL/openjdk-12.0.1_linux-x64_bin.tar.gz
+$ tar -zxvf openjdk-12.0.1_linux-x64_bin.tar.gz -C /opt/module/
+$ cd /opt/module/jdk-12.0.1/
+$ sudo vim /etc/profile
+export JAVA_HOME=/opt/module/jdk-12.0.1
+export PATH=$PATH:$JAVA_HOME/bin
+</code></pre>
+
+<p>保存後退出，然後讓配置生效</p>
+
+<pre><code class="language-shell">$ source /etc/profile
+$ java -version
+openjdk version &quot;12.0.1&quot; 2019-04-16
+OpenJDK Runtime Environment (build 12.0.1+12)
+OpenJDK 64-Bit Server VM (build 12.0.1+12, mixed mode, sharing)
+</code></pre>
+
+<h2 id="安裝hadoop">安裝Hadoop</h2>
+
+<p>在 software 目錄中下載 Hadoop，解壓到 module 目錄下，然後在 /etc/profile 將 Hadoop 添加到環境變量，這里用2.7.7版本。可以在 <a href="https://hadoop.apache.org/releases.html">這里下載</a> 自己需要的Hadoop版本</p>
+
+<pre><code class="language-shell">$ cd /opt/software
+$ wget https://www-us.apache.org/dist/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
+$ tar -zxvf hadoop-2.7.7.tar.gz -C /opt/module/
+$ cd /opt/module/hadoop-2.7.7/
+$ sudo vim /etc/profile
+export HADOOP_HOME=/opt/module/hadoop-2.7.7
+export PATH=$PATH:$HADOOP_HOME/bin
+export PATH=$PATH:$HADOOP_HOME/sbin
+</code></pre>
+
+<p>保存後退出，然後讓配置生效</p>
+
+<pre><code class="language-bash">$ source /etc/profile
+$ hadoop version
+Hadoop 2.7.7
+Subversion Unknown -r c1aad84bd27cd79c3d1a7dd58202a8c3ee1ed3ac
+Compiled by stevel on 2018-07-18T22:47Z
+Compiled with protoc 2.5.0
+From source with checksum 792e15d20b12c74bd6f19a1fb886490
+This command was run using /opt/module/hadoop-2.7.7/share/hadoop/common/hadoop-common-2.7.7.jar
+</code></pre>
+
+<h2 id="測試hadoop">測試Hadoop</h2>
+
+<h3 id="grep案例">Grep案例</h3>
+
+<p>運行grep測試並查看結果</p>
+
+<pre><code class="language-shell">$ mkdir input
+$ cp etc/hadoop/*.xml input
+$ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.7.jar grep input output 'dfs[a-z.]+'
+$ cat output/*
+1	dfsadmin
+</code></pre>
+
+<h3 id="wordcount案例">WordCount案例</h3>
+
+<p>創建 wc.input 文件</p>
+
+<pre><code class="language-shell">$ mkdir wcinput
+$ cd wcinput
+$ touch wc.input
+$ vim wc.input
+</code></pre>
+
+<p>輸入如下內容</p>
+
+<pre><code>hadoop yarn
+hadoop mapreduce
+atguigu
+atguigu
+</code></pre>
+
+<p>保存退出後回到 hadoop 目錄運行測試，並查看結果</p>
+
+<pre><code class="language-shell">$ cd ..
+$ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.7.jar wordcount wcinput/ wcoutput
+$ cat wcoutput/part-r-00000
+atguigu	2
+hadoop	2
+mapreduce	1
+yarn	1
+</code></pre>
+
+    </div>
+    
+      <div class="pagination">
+        <div class="pagination__title">
+          <span class="pagination__title-h">Read other posts</span>
+          <hr />
+        </div>
+        <div class="pagination__buttons">
+          
+          
+            <span class="button next">
+              <a href="/posts/my-first-post/">
+                <span class="button__text">My First Post</span>
+                <span class="button__icon">→</span>
+              </a>
+            </span>
+          
+        </div>
+      </div>
+    
+
+    
+
+    </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a href="/" class="logo" style="text-decoration: none;">
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" width="44" height="44" viewBox="0 0 44 44">
+  <polyline fill="none" stroke="#000" stroke-width="2" points="15 8 29.729 22.382 15 35.367"/>
+</svg>
+</span>
+    <span class="logo__text">Learning | Creating | Shareing</span>
+    <span class="logo__cursor"></span>
+  
+</a>
+
+      <div class="copyright">
+        <span>© 2019 Powered by <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span>
+        <span>Theme created by <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a></span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="/assets/main.js"></script>
+<script src="/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
+</html>

@@ -3,17 +3,39 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/posts/install_hadoop_2.7_in_centos_7/</loc>
+    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/posts/</loc>
+    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/about/</loc>
+    <lastmod>2019-06-30T15:58:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/posts/my-first-post/</loc>
+    <lastmod>2019-06-30T15:58:56+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/tags/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/</loc>
     <priority>0</priority>
   </url>
   
