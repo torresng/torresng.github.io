@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+      <title>理解MapReduce :: TorresNG&#39;s Blog</title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="假如我們有一份很大的數據需要處理，只用單進程單線程需要大量的運行時間，為了減少執行時間，我們可以用多進程多線程并發執行，把一個大的數據划分為獨立較小的數據，然後交給這些進程獨立執行，當這些較小的數據處理完後，我們可以很容易把它們合并成最終結果，這是典型的分治算法，也是MapReduce的主要思想。
+當然MapReduce要處理的是大數據的問題，需要解決的事比上面遠大得多。因為單台計算機最後也會出現性能瓶頸，不單擴展單台計算機比較困難且昂貴，而且當單台計算機Crash後，之前所處理的數據全都白費了，所以MapReduce的架構是主要是為了能在多個計算機上實現并行化計算。通過MapReduce可以在大量普通的計算機上實現高性能計算，而且具有可擴展性和高可性的特點。
+MapReduce執行部分簡單可以分為單個Master和多個Worker，Master就像公司里的Leader，負責管理，調度和分配任務給小弟，而Worker就是拼了命工作的那些小弟，為了防了單台計算機，這些Worker分布在集群中不同的計算機上執行，當一個計算機Crash後，Master可以將那台計算機所執行的任務分配給其他Worker，這樣實現了高可用。那Master死後怎麼辦？那只能呵呵呵了，當然有各種方式可以解決，其中一種就是通知用戶Master Crash了，讓用戶決定處理方法。
+通過MapReduce，我們可以不用處理分布式上遇到的各種問題，MapReduce為我們處理了并行編程中分布存儲、工作調度、負載均衡、容錯處理及網絡通信等複雜問題，我們需要輕鬆愉快的編寫兩個函數即可：map和reduce。map負責把任務分解成多個任務，reduce負責把分解後任務處理的結果汇總起來。需要注意的是，用MapReduce來處理的數據集（或任務）必須具備這樣的特點：待處理的數據集可以分解成計多小的數據集，而且每一個小數據集都可以完全并行地處理。"/>
+<meta name="keywords" content=""/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="/posts/understanding_mapreduce/" />
+
+
+<link rel="stylesheet" href="/assets/style.css">
+
+
+<link rel="stylesheet" href="/style.css">
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/img/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/img/favicon.png">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="理解MapReduce"/>
+<meta name="twitter:description" content="假如我們有一份很大的數據需要處理，只用單進程單線程需要大量的運行時間，為了減少執行時間，我們可以用多進程多線程并發執行，把一個大的數據划分為獨立較小的數據，然後交給這些進程獨立執行，當這些較小的數據處理完後，我們可以很容易把它們合并成最終結果，這是典型的分治算法，也是MapReduce的主要思想。
+當然MapReduce要處理的是大數據的問題，需要解決的事比上面遠大得多。因為單台計算機最後也會出現性能瓶頸，不單擴展單台計算機比較困難且昂貴，而且當單台計算機Crash後，之前所處理的數據全都白費了，所以MapReduce的架構是主要是為了能在多個計算機上實現并行化計算。通過MapReduce可以在大量普通的計算機上實現高性能計算，而且具有可擴展性和高可性的特點。
+MapReduce執行部分簡單可以分為單個Master和多個Worker，Master就像公司里的Leader，負責管理，調度和分配任務給小弟，而Worker就是拼了命工作的那些小弟，為了防了單台計算機，這些Worker分布在集群中不同的計算機上執行，當一個計算機Crash後，Master可以將那台計算機所執行的任務分配給其他Worker，這樣實現了高可用。那Master死後怎麼辦？那只能呵呵呵了，當然有各種方式可以解決，其中一種就是通知用戶Master Crash了，讓用戶決定處理方法。
+通過MapReduce，我們可以不用處理分布式上遇到的各種問題，MapReduce為我們處理了并行編程中分布存儲、工作調度、負載均衡、容錯處理及網絡通信等複雜問題，我們需要輕鬆愉快的編寫兩個函數即可：map和reduce。map負責把任務分解成多個任務，reduce負責把分解後任務處理的結果汇總起來。需要注意的是，用MapReduce來處理的數據集（或任務）必須具備這樣的特點：待處理的數據集可以分解成計多小的數據集，而且每一個小數據集都可以完全并行地處理。"/>
+
+
+
+<meta property="og:title" content="理解MapReduce" />
+<meta property="og:description" content="假如我們有一份很大的數據需要處理，只用單進程單線程需要大量的運行時間，為了減少執行時間，我們可以用多進程多線程并發執行，把一個大的數據划分為獨立較小的數據，然後交給這些進程獨立執行，當這些較小的數據處理完後，我們可以很容易把它們合并成最終結果，這是典型的分治算法，也是MapReduce的主要思想。
+當然MapReduce要處理的是大數據的問題，需要解決的事比上面遠大得多。因為單台計算機最後也會出現性能瓶頸，不單擴展單台計算機比較困難且昂貴，而且當單台計算機Crash後，之前所處理的數據全都白費了，所以MapReduce的架構是主要是為了能在多個計算機上實現并行化計算。通過MapReduce可以在大量普通的計算機上實現高性能計算，而且具有可擴展性和高可性的特點。
+MapReduce執行部分簡單可以分為單個Master和多個Worker，Master就像公司里的Leader，負責管理，調度和分配任務給小弟，而Worker就是拼了命工作的那些小弟，為了防了單台計算機，這些Worker分布在集群中不同的計算機上執行，當一個計算機Crash後，Master可以將那台計算機所執行的任務分配給其他Worker，這樣實現了高可用。那Master死後怎麼辦？那只能呵呵呵了，當然有各種方式可以解決，其中一種就是通知用戶Master Crash了，讓用戶決定處理方法。
+通過MapReduce，我們可以不用處理分布式上遇到的各種問題，MapReduce為我們處理了并行編程中分布存儲、工作調度、負載均衡、容錯處理及網絡通信等複雜問題，我們需要輕鬆愉快的編寫兩個函數即可：map和reduce。map負責把任務分解成多個任務，reduce負責把分解後任務處理的結果汇總起來。需要注意的是，用MapReduce來處理的數據集（或任務）必須具備這樣的特點：待處理的數據集可以分解成計多小的數據集，而且每一個小數據集都可以完全并行地處理。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/posts/understanding_mapreduce/" />
+<meta property="article:published_time" content="2019-07-01T21:18:06&#43;08:00"/>
+<meta property="article:modified_time" content="2019-07-01T21:18:06&#43;08:00"/><meta property="og:site_name" content="TorresNG&#39;s Blog" />
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a href="/" class="logo" style="text-decoration: none;">
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" width="44" height="44" viewBox="0 0 44 44">
+  <polyline fill="none" stroke="#000" stroke-width="2" points="15 8 29.729 22.382 15 35.367"/>
+</svg>
+</span>
+    <span class="logo__text">Learning | Creating | Shareing</span>
+    <span class="logo__cursor"></span>
+  
+</a>
+
+    <span class="header__right">
+      
+        <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="/showcase">Showcase</a></li>
+        
+      
+      
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="/showcase">Showcase</a></li>
+      
+    
+  </ul>
+</nav>
+
+        <span class="menu-trigger">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </span>
+      
+      <span class="theme-toggle">
+        <svg class="theme-toggler" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"/>
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  <div class="post">
+    <h2 class="post-title"><a href="/posts/understanding_mapreduce/">理解MapReduce</a></h2>
+    <div class="post-meta">
+      
+        <span class="post-date">
+            2019-07-01
+        </span>
+      
+      
+      
+    </div>
+
+    
+
+    
+
+    <div class="post-content">
+      <p>假如我們有一份很大的數據需要處理，只用單進程單線程需要大量的運行時間，為了減少執行時間，我們可以用多進程多線程并發執行，把一個大的數據划分為獨立較小的數據，然後交給這些進程獨立執行，當這些較小的數據處理完後，我們可以很容易把它們合并成最終結果，這是典型的分治算法，也是MapReduce的主要思想。</p>
+
+<p>當然MapReduce要處理的是大數據的問題，需要解決的事比上面遠大得多。因為單台計算機最後也會出現性能瓶頸，不單擴展單台計算機比較困難且昂貴，而且當單台計算機Crash後，之前所處理的數據全都白費了，所以MapReduce的架構是主要是為了能在多個計算機上實現并行化計算。通過MapReduce可以在大量普通的計算機上實現高性能計算，而且具有可擴展性和高可性的特點。</p>
+
+<p>MapReduce執行部分簡單可以分為單個<strong>Master</strong>和多個<strong>Worker</strong>，<strong>Master</strong>就像公司里的Leader，負責管理，調度和分配任務給小弟，而<strong>Worker</strong>就是拼了命工作的那些小弟，為了防了單台計算機，這些<strong>Worker</strong>分布在集群中不同的計算機上執行，當一個計算機Crash後，<strong>Master</strong>可以將那台計算機所執行的任務分配給其他<strong>Worker</strong>，這樣實現了高可用。那Master死後怎麼辦？那只能呵呵呵了，當然有各種方式可以解決，其中一種就是通知用戶<strong>Master</strong> Crash了，讓用戶決定處理方法。</p>
+
+<p><img src="/media/Google_MapReduce.jpg" alt="Google Reduce" /></p>
+
+<p>通過MapReduce，我們可以不用處理分布式上遇到的各種問題，MapReduce為我們處理了并行編程中分布存儲、工作調度、負載均衡、容錯處理及網絡通信等複雜問題，我們需要輕鬆愉快的編寫兩個函數即可：map和reduce。map負責把任務分解成多個任務，reduce負責把分解後任務處理的結果汇總起來。需要注意的是，用MapReduce來處理的數據集（或任務）必須具備這樣的特點：待處理的數據集可以分解成計多小的數據集，而且每一個小數據集都可以完全并行地處理。</p>
+
+    </div>
+    
+      <div class="pagination">
+        <div class="pagination__title">
+          <span class="pagination__title-h">Read other posts</span>
+          <hr />
+        </div>
+        <div class="pagination__buttons">
+          
+          
+            <span class="button next">
+              <a href="/posts/install_hadoop_2.7_in_centos_7/">
+                <span class="button__text">Install Hadoop 2.7 in CentOS 7</span>
+                <span class="button__icon">→</span>
+              </a>
+            </span>
+          
+        </div>
+      </div>
+    
+
+    
+
+    </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a href="/" class="logo" style="text-decoration: none;">
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" width="44" height="44" viewBox="0 0 44 44">
+  <polyline fill="none" stroke="#000" stroke-width="2" points="15 8 29.729 22.382 15 35.367"/>
+</svg>
+</span>
+    <span class="logo__text">Learning | Creating | Shareing</span>
+    <span class="logo__cursor"></span>
+  
+</a>
+
+      <div class="copyright">
+        <span>© 2019 Powered by <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span>
+        <span>Theme created by <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a></span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="/assets/main.js"></script>
+<script src="/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
+</html>

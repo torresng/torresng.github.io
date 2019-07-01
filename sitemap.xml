@@ -3,20 +3,25 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/posts/install_hadoop_2.7_in_centos_7/</loc>
-    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/posts/</loc>
-    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
+    <lastmod>2019-07-01T21:18:06+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
+    <lastmod>2019-07-01T21:18:06+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/posts/understanding_mapreduce/</loc>
+    <lastmod>2019-07-01T21:18:06+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/posts/install_hadoop_2.7_in_centos_7/</loc>
+    <lastmod>2019-06-30T16:10:21+08:00</lastmod>
   </url>
   
   <url>
