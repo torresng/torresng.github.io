@@ -4,6 +4,8 @@ date: 2019-06-30T16:10:21+08:00
 draft: false
 ---
 
+<!--more-->
+
 ## 配置環境
 
 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
