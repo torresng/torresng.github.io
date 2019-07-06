@@ -62,6 +62,7 @@ $ sudo vim /etc/profile
 export HADOOP_HOME=/opt/module/hadoop-2.7.7
 export PATH=$PATH:$HADOOP_HOME/bin
 export PATH=$PATH:$HADOOP_HOME/sbin
+export CLASSPATH=$($HADOOP_HOME/bin/hadoop classpath):$CLASSPATH
 ```
 
 保存後退出，然後讓配置生效
