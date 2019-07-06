@@ -6,9 +6,7 @@
     
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<meta name="description" content="配置環境 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
-$ sudo dhclient $ sudo yum install -y wget net-tools vim  在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己
-$ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ software/ $ ll total 0 drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software  安裝Java JDK 在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 這里下載"/>
+<meta name="description" content=""/>
 <meta name="keywords" content=""/>
 <meta name="robots" content="noodp"/>
 <link rel="canonical" href="/posts/install_hadoop_2.7_in_centos_7/" />
@@ -26,16 +24,12 @@ $ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ softw
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Install Hadoop 2.7 in CentOS 7"/>
-<meta name="twitter:description" content="配置環境 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
-$ sudo dhclient $ sudo yum install -y wget net-tools vim  在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己
-$ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ software/ $ ll total 0 drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software  安裝Java JDK 在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 這里下載"/>
+<meta name="twitter:description" content=""/>
 
 
 
 <meta property="og:title" content="Install Hadoop 2.7 in CentOS 7" />
-<meta property="og:description" content="配置環境 剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具
-$ sudo dhclient $ sudo yum install -y wget net-tools vim  在 /opt/ 目錄下創建 module 目錄和 software 目錄，然後分配這兩個目錄的權限給自己
-$ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ software/ $ ll total 0 drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 module drwxr-xr-x. 2 torres torres 6 Jun 30 04:59 software  安裝Java JDK 在 software 目錄中下載 Java OpenJDK，解壓到 module 目錄下，然後在 /etc/profile 將 Java 添加到環境變量。需要 OpenJDK 其他版本可以到 這里下載" />
+<meta property="og:description" content="" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="/posts/install_hadoop_2.7_in_centos_7/" />
 <meta property="article:published_time" content="2019-06-30T16:10:21&#43;08:00"/>
@@ -132,9 +126,7 @@ $ cd /opt/ $ sudo mkdir module software $ sudo chown torres:torres module/ softw
     
 
     <div class="post-content">
-      
-
-<h2 id="配置環境">配置環境</h2>
+      <h2 id="配置環境">配置環境</h2>
 
 <p>剛裝完 CentOS 7 先連網，然後安裝 wget, net-tools( ifconfig, netstat ) 和 vim 工具</p>
 
@@ -243,7 +235,6 @@ hadoop	2
 mapreduce	1
 yarn	1
 </code></pre>
-
     </div>
     
       <div class="pagination">
