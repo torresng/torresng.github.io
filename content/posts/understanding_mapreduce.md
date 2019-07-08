@@ -14,7 +14,7 @@ draft: false
 
 MapReduce執行部分簡單可以分為單個**Master**和多個**Worker**，**Master**就像公司里的Leader，負責管理，調度和分配任務給小弟，而**Worker**就是拼了命工作的那些小弟，為了防了單台計算機，這些**Worker**分布在集群中不同的計算機上執行，當一個計算機Crash後，**Master**可以將那台計算機所執行的任務分配給其他**Worker**，這樣實現了高可用。那Master死後怎麼辦？那只能呵呵呵了，當然有各種方式可以解決，其中一種就是通知用戶**Master** Crash了，讓用戶決定處理方法。
 
-金![Google Reduce](/media/understanding_mapreduce/Google_MapReduce.jpg)
+![Google Reduce](/media/understanding_mapreduce/Google_MapReduce.jpg)
 
 ## map 和 reduce
 
@@ -22,29 +22,47 @@ MapReduce執行部分簡單可以分為單個**Master**和多個**Worker**，**M
 
 ## 分片
 
-Hadoop將MapReduce的輸入數據划分成等長的小數據塊，稱為**輸入分片**或**分片**。Hadoop為每個分片构建一個map任務，并由該任務來運行用戶自定義的**map函數**從而處理分片中的每條記錄。
+將MapReduce的輸入數據划分成等長的小數據塊，稱為**輸入分片**或**分片**。為每個分片构建一個map任務，并由該任務來運行用戶自定義的**map函數**從而處理分片中的每條記錄，map調用被分布到多台機器上執行，輸入的分片能夠在不同的機器上并行處理。
 
-最佳分片的大小應該與塊大小相同：因為它是確保可以存儲在單個節點上的最大輸入塊的大小。如果分片跨越兩個數據塊，那麼對於任何一個 HDFS 節點，基本上都不可能同時存儲這兩個數據塊。
+## 類型
 
-## 數據流
+用戶定義的map和reduce函數都有相關聯的類型：
 
-map任務將其輸出寫入本地硬盤，而非HDFS。因為map的輸出是中間結果，如果把它存儲在HDFS中并實現備份，難免有些小題大做。如果運行map任務的節點在將map中間結果傳送給reduce任務之前失敗，Hadoop將在另一個節點上重新運行這個map任務以再次构建map中結果。
+```
+map(key1, value1) -> list(key2, value2)
+reduce(key2, list(value2)) -> list(value2)
+```
 
-而reduce任務不具備數據本地化的優勢，單個reduce任務的輸入通常來自於所有mapper的輸出。reduce的輸出通常存儲在HDFS中以實現可靠存儲，對於reduce輸出的每個HDFS塊，第一個複本存儲在本地節點上，其他複本出於可靠性考慮存儲在其他機架的節點中。因此，將reduce的輸出寫入HDFS確實需要占用網絡帶寬，但這與正常的HDFS管線寫入的消耗一樣。
+**map** 的輸入**key**（key1）和**value**（value1）與map的輸出 **key**（key2） 和 **value**（value2） 在類型上推導的域不同。此外，map 的輸出 **key** 和 **value** 與 **reduce** 的輸入 **key** 和 **value** 在類型上推導的域相同。
+
+## Shuffle
 
 如果有好多個reduce任務，每個map任務就會針對輸出進行分區，即為每個reduce任務建一個分區。每個分區有許多鍵（及其對應的值），但每個鍵對應的鍵-值對記錄都在同一分區中。分區可由用戶定義的分區函數控制，但通常用默認的partitioner通過哈希函數來分區，很高效。map任務和reduce任務之間的數據流稱為**shuffle**，因為每個reduce任務的輸入都來自許多map任務。
 
-![Google Reduce](/media/understanding_mapreduce/MapReduce_data_flow_with multiple_reduce_tasks.png)
-
-當數據處理可以完全并行（即無需shuffle時），可能會出現無reduce任務的情況。在這種情況下，唯一的非本地節點數據傳輸是map任務將結果寫入HDFS。
-
-![Google Reduce](/media/understanding_mapreduce/MapReduce_data_flow_with_no_reduce_tasks.png)
-
 ## combiner函數
 
-集群上的可用帶寬限制了MapReduce作業數量，因此䀆量避免map和reduce任務之間的數據傳輸是有利的（例如傳輸較小的數據）。Hadoop允許用戶針對map任務的輸出指定一個**combiner**（就像mapper和reduce一樣），combiner函數的輸出作為reduce函數的輸入。由於cmobiner屬於優化方案，所以Hadoop無法確定要對一個指定的map任務輸出記錄調用多少次combiner（如果需要）。換而言之，不管調用combiner多少次，0次，1次或多次，reducer的輸出結果都是一樣的。
+集群上的可用帶寬限制了MapReduce作業數量，因此䀆量避免map和reduce任務之間的數據傳輸是有利的（例如傳輸較小的數據）。MapReduce允許用戶針對map任務的輸出指定一個**combiner**（就像mapper和reduce一樣），combiner函數的輸出作為reduce函數的輸入。由於cmobiner屬於優化方案，所以MapReduce無法確定要對一個指定的map任務輸出記錄調用多少次combiner（如果需要）。換而言之，不管調用combiner多少次，0次，1次或多次，reducer的輸出結果都是一樣的。
+
+## MapReduce過程
+
+MapReduce實現的大概過程如下：
+
+1. 用戶程序首先調用的MapReduce庫將輸入文件分成M個分片，每個分片的大小一般從16MB到64MB（可以通過可選的參數來控制每個數據分片的大小）。每後用戶程序在集群中創建大量的程序副本。
+2. 這些程序副本中有一個特殊的程序master。副本中其他的程序都是worker程序，由master分配任務。有M個Map任務和R個Reduce任務將被分配, master將一個Map任務或Reduce任務分配給一個空閑的worker。
+3. 被分配了map任務的worker程序讀取相關的輸入數據片段，從輸入的數據片段中解析出key/value對，然後把key/value對傳递給用戶自定義的Map函數，由Map函數生成并輸出的中間key/value對，并緩存在內存中。
+4. 緩存中的key/value對通過分區函數分成R個區域，之後周期性的寫入到本地磁盤上，會產生R個臨時文件。緩存的key/value對在本地磁盤上的存儲位置將被回傳給master，由master負責把這些存儲位置再傳送給Reduce worker。
+5. 當Reduce worker程序接收到master程序發來的數據存儲位置信息後，使用RPC從Map worker所在主機的磁盤上讀取這些緩存數據。當Reduce worker讀取了所有的中間數據（這個時候所有的Map任務都執行完了）後，通過對key進行排序後使得具有相同key值的數據聚合在一起。由於許多不同的key值會映射到相同的Reduce任務上，因此必須進行排序。如果中間數據太大無法在內存中完成排序，那麼就要在外部進行排序。
+6. Reduce worker程序遍歷排序後的中間數據，對於每一個唯一的中間key值，Reduce worker程序將這個key值和它相關的中間value值的集合（這個集合是由Reduce worker產生，它存放的是同一個key對應的value值）傳递給用戶自定義的Reduce函數。Reduce函數的輸出被追加到所屬分區的輸出文件。
+
+上面過程中的排序很容易理解，關鍵是分區，這一步最終決定該鍵值對未來會交給哪個reduce任務，如果統計單詞出現的次數可以用hash(key) mod R來分區，如果是對數據進行排序則應該根據key的分布進行分區。
+
+注：其實在某些map執行完成後有空閑worker時就可以執行Reduce任務，這時的Reduce任務將從map主機上讀取輸出的數據放到自己本機上，等到所有map完成後就可以copy剩下的數據到自己本機，然後執行Reduce函數，而不用等到所有map完成後才開始copy數據到自己本機。
+
+![MapReduce Process](/media/understanding_mapreduce/MapReduce.png)
 
 ## 運行代碼
+
+這里以 Hadoop 中的 MapReduce 作為示例。
 
 安裝 Java 和 Hadoop 可以參考我另一篇文章 [Install Hadoop 2.7 in CentOS 7](http://www.torresng.com/posts/install_hadoop_2.7_in_centos_7/)。
 
